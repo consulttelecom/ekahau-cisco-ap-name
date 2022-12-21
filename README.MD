@@ -29,20 +29,21 @@ Copy survey project file and Cisco WLC config file in tool file folder, then jus
 * First argument is the filename of WLC config file
 * Second argument is the filename of Ekahau project file
 
-   
-    Example of tool output
-    (venv) PS C:\Users\rpodoyni\Ekahau_tools> python.exe .\add_ap_names.py show_run_aireos Floor_3_merged.esx        
-    Called the function to extract BSSIDs from config file C:\Users\rpodoyni\Ekahau_tools\show_run_aireos
-    Try to open file with name C:\Users\rpodoyni\Ekahau_tools\show_run_aireos
-    The WLC config file is parsed, the number of BSSID-AP name pairs is 116
-    Changed AP name in project file  EMEA-SP-MDR-10P  to  EMEA-SP-MDR-10PQR-WAP09
-    Changed AP name in project file  EMEA-SP-MDR-10PQR-WAP09  to  EMEA-SP-MDR-10PQR-WAP09
-    Changed AP name in project file  EMEA-SP-MDR-10P  to  EMEA-SP-MDR-10PQR-WAP06
-    Changed AP name in project file  Measured AP-39:a4  to  EMEA-SP-MDR-10PQR-AP705
-    Changed AP name in project file  EMEA-SP-MDR-10P  to  EMEA-SP-MDR-10PQR-WAP10
-    Changed AP name in project file  Measured AP-f0:eb  to  EMEA-SP-MDR-10PQR-WAP07
-    New project file is ready to use, filename is C:\Users\rpodoyni\Ekahau_tools\Floor_3_merged.esx_modified.esx
-    (venv) PS C:\Users\rpodoyni\Ekahau_tools>
+
+	Example of tool output
+	(venv) PS C:\Users\rpodoyni\Ekahau_tools> python.exe .\add_ap_names.py show_run_aireos Floor_3_merged.esx        
+	Called the function to extract BSSIDs from config file C:\Users\rpodoyni\Ekahau_tools\show_run_aireos
+	Try to open file with name C:\Users\rpodoyni\Ekahau_tools\show_run_aireos
+	The WLC config file is parsed, the number of BSSID-AP name pairs is 116
+	Changed AP name in project file  EMEA-SP-MDR-10P  to  EMEA-SP-MDR-10PQR-WAP09
+	Changed AP name in project file  EMEA-SP-MDR-10PQR-WAP09  to  EMEA-SP-MDR-10PQR-WAP09
+	Changed AP name in project file  EMEA-SP-MDR-10P  to  EMEA-SP-MDR-10PQR-WAP06
+	Changed AP name in project file  Measured AP-39:a4  to  EMEA-SP-MDR-10PQR-AP705
+	Changed AP name in project file  EMEA-SP-MDR-10P  to  EMEA-SP-MDR-10PQR-WAP10
+	Changed AP name in project file  Measured AP-f0:eb  to  EMEA-SP-MDR-10PQR-WAP07
+	New project file is ready to use, filename is C:\Users\rpodoyni\Ekahau_tools\Floor_3_merged.esx_modified.esx
+	(venv) PS C:\Users\rpodoyni\Ekahau_tools>
+
 
 ## Compatible with data from these Cisco wireless controllers:
 * Cisco AireOS WLC (collect the output of **show running-config** command)
