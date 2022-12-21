@@ -29,7 +29,7 @@ Copy survey project file and Cisco WLC config file in tool file folder, then jus
 * First argument is the filename of WLC config file
 * Second argument is the filename of Ekahau project file
 
-
+	```
 	Example of tool output
 	(venv) PS C:\Users\rpodoyni\Ekahau_tools> python.exe .\add_ap_names.py show_run_aireos Floor_3_merged.esx        
 	Called the function to extract BSSIDs from config file C:\Users\rpodoyni\Ekahau_tools\show_run_aireos
@@ -43,6 +43,7 @@ Copy survey project file and Cisco WLC config file in tool file folder, then jus
 	Changed AP name in project file  Measured AP-f0:eb  to  EMEA-SP-MDR-10PQR-WAP07
 	New project file is ready to use, filename is C:\Users\rpodoyni\Ekahau_tools\Floor_3_merged.esx_modified.esx
 	(venv) PS C:\Users\rpodoyni\Ekahau_tools>
+	```
 
 
 ## Compatible with data from these Cisco wireless controllers:
