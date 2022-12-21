@@ -30,8 +30,7 @@ Copy survey project file and Cisco WLC config file in tool file folder, then jus
 * Second argument is the filename of Ekahau project file
 
    
-    #Example of tool output
-
+    Example of tool output
     (venv) PS C:\Users\rpodoyni\Ekahau_tools> python.exe .\add_ap_names.py show_run_aireos Floor_3_merged.esx        
     Called the function to extract BSSIDs from config file C:\Users\rpodoyni\Ekahau_tools\show_run_aireos
     Try to open file with name C:\Users\rpodoyni\Ekahau_tools\show_run_aireos
