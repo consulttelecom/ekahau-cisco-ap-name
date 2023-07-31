@@ -1,7 +1,7 @@
 import shutil
 import zipfile
 import json
-import os
+import pathlib
 import logging
 import sys
 
@@ -17,7 +17,7 @@ def mac_changer(mac):
 def exctract_bssid(wlc_config_filename):
     # This function should extract the BSSIDs and AP names data from Cisco WLC config file (irrelevant of platform)
     bssids_dict = {}
-    print('Called the function to extract BSSIDs from config file '+wlc_config_filename)
+    print('Called the function to extract BSSIDs from config file '+str(wlc_config_filename))
     config_strings_list, platform = file_to_string(wlc_config_filename)
     if platform == 'AireOS':
         for line in config_strings_list:
@@ -40,6 +40,7 @@ def exctract_bssid(wlc_config_filename):
         print('WLC platform is not found in file, make sure that you used the correct file and filename')
     logging.debug('The WLC config file is parsed, the number of BSSID-AP name pairs is ' + str(len(bssids_dict)))
     print(('The WLC config file is parsed, the number of BSSID-AP name pairs is ' + str(len(bssids_dict))))
+    print(bssids_dict)
     return bssids_dict
 
 def get_config_part(config, start_word, stop_word):
@@ -69,52 +70,54 @@ def extract_value_aireos(line_str):
     value = point_splitted_line[-1].strip()
     return value
 
-def file_to_string(filename):
+def file_to_string(filepath):
     #This function normalizes the data from WLC config file
-    print('Try to open file with name '+filename)
+    print('Try to open file with name '+str(filepath))
     config_string = []
     try:
-        f = open(filename, 'r', encoding="utf8", errors='ignore')
-        previous_line = ''
-        for line in f:
-            line_str = line.rstrip()
-            if len(line_str) > 5:  # Remove empty strings
-                if 'More or (q)uit' in line_str:
-                    pass
-                elif line.startswith('.'): #Line break in between points (bad session log from Cu)
-                    config_string.pop()
-                    config_string.append(previous_line+line_str)
-                elif '....' in line and not '....' in previous_line and (len(line) - len(line.lstrip())) < previous_leading_spaces:#Line break in keyword
-                    config_string.append(previous_line + line_str)
-                else:
-                    config_string.append(line_str)
-            previous_line = line_str
-            previous_leading_spaces = len(line) - len(line.lstrip())
-        #Find platform by specific config lines
-        for line in config_string:
-            if 'Cisco IOS XE Software' in line:
-                platform = '9800'
-                break
-            if 'System Inventory' in line:
-                platform = 'AireOS'
-                break
-        logging.debug('Number of NON-EMPTY lines in config file ' + str(filename) + str(len(config_string)))
-        logging.debug('Platform is ' + platform)
+        with filepath.open(mode="r", encoding="utf-8") as f:
+            previous_line = ''
+            for line in f:
+                line_str = line.rstrip()
+                if len(line_str) > 5:  # Remove empty strings
+                    if 'More or (q)uit' in line_str:
+                        pass
+                    elif line.startswith('.'): #Line break in between points (bad session log from Cu)
+                        config_string.pop()
+                        config_string.append(previous_line+line_str)
+                    elif '....' in line and not '....' in previous_line and (len(line) - len(line.lstrip())) < previous_leading_spaces:#Line break in keyword
+                        config_string.append(previous_line + line_str)
+                    else:
+                        config_string.append(line_str)
+                previous_line = line_str
+                previous_leading_spaces = len(line) - len(line.lstrip())
+            #Find platform by specific config lines
+            for line in config_string:
+                if 'Cisco IOS XE Software' in line:
+                    platform = '9800'
+                    break
+                if 'System Inventory' in line:
+                    platform = 'AireOS'
+                    break
+            logging.debug('Number of NON-EMPTY lines in config file ' + str(filepath) + str(len(config_string)))
+            logging.debug('Platform is ' + platform)
 
-        f.close()
+            #f.close()
     except:
         print('File error, please check the file name and folder are correct!')
-        logging.debug('File error' + str(filename))
+        logging.debug('File error' + str(filepath))
         return None, 'empty'
     return config_string, platform
 
 def add_ap_names(project_filename, bssid_dict):
-    if not os.path.exists('Ekahau'):
-        os.makedirs('Ekahau')
-    working_directory = os.getcwd()
+
+    p = pathlib.Path('Ekahau/')
+    p.mkdir(parents=True, exist_ok=True)
+    working_directory = pathlib.Path.cwd()
+    temp_folder_filepath = working_directory / 'Ekahau'
     # Load & Unzip the Ekahau Project File
     with zipfile.ZipFile(project_filename, 'r') as myzip:
-        myzip.extractall(working_directory+'\\Ekahau\\')
+        myzip.extractall(temp_folder_filepath)
 
         # Load the accessPoints.json file into the accessPoints dictionary
         with myzip.open('accessPoints.json') as json_file:
@@ -132,43 +135,46 @@ def add_ap_names(project_filename, bssid_dict):
             ap_name = item[0]
             bssid = item[1][:-1] #Intentionally removed last symbol from MAC address
             for measurement in accessPointMeasurements['accessPointMeasurements']:
-                if bssid in measurement['mac']: #We catch BSSID -> MAC
+                if bssid in measurement['mac']: #We catched BSSID -> MAC
                     logging.debug('We catched BSSID -> MAC ' + bssid + ' ' + measurement['mac'] + ' ' + measurement['id'])
                     for measuredRadio in measuredRadios['measuredRadios']:
                         if measurement['id'] in measuredRadio['accessPointMeasurementIds']: #We catch MAC -> Mesurement ID and found Access_point_ID
                             logging.debug('We catched MAC -> Mesurement ID and found Access_point_ID' + bssid + ' ' + measurement['mac'] + ' ' + measurement['id'] + ' ' + measuredRadio['accessPointId'])
                             for ap in accessPoints['accessPoints']:
                                 if ap['id'] == measuredRadio['accessPointId']:
-                                    #print(bssid, measurement['mac'], measurement['id'], measuredRadio['accessPointId'],ap['id'],ap['name'])
                                     print('Changed AP name in project file ', ap['name'],' to ',ap_name)
                                     ap['name'] = ap_name
 
     # Write the changes into the accessPoints.json File
-    with open(working_directory+'\\Ekahau\\' + 'accessPoints.json', 'w') as file:
+    filepath = temp_folder_filepath / 'accessPoints.json'
+    with filepath.open(mode= "w", encoding="utf-8") as file:
         json.dump(accessPoints, file, indent=4)
     logging.debug('New accessPoints.json file is written')
 
     # Create a new version of the Ekahau Project
-    new_filename = project_filename + '_modified'
-    shutil.make_archive(new_filename, 'zip', working_directory+'\\Ekahau\\')
-    shutil.move(new_filename + '.zip', new_filename + '.esx')
-    logging.debug('New project file is ready to use, filename is ' + new_filename + '.esx')
-    print('New project file is ready to use, filename is ' + new_filename + '.esx')
+    new_filename = pathlib.Path(str(project_filename) +'_modified')
+    shutil.make_archive(new_filename, 'zip', temp_folder_filepath)
+    my_file = pathlib.Path(str(new_filename)+'.zip')
+    my_file.rename(my_file.with_suffix('.esx'))
+    #shutil.move(new_filename + '.zip', new_filename + '.esx')
+    logging.debug('New project file is ready to use, filename is ' + str(my_file.with_suffix('.esx')))
+    print('New project file is ready to use, filename is ' + str(my_file.with_suffix('.esx')))
 
     # Cleaning Up
-    shutil.rmtree(working_directory+'\\Ekahau\\')
+    shutil.rmtree(temp_folder_filepath)
     logging.debug('Working folder is cleaned')
 
 def main():
-    home = os.getcwd()
-    logging.basicConfig(filename=home + '\\' + 'Ekahau.log', encoding='utf-8', filemode='w', level=logging.DEBUG)
+    home = pathlib.Path.cwd()
+    log_filepath = home / 'Ekahau.log'
+    logging.basicConfig(filename = str(log_filepath), encoding='utf-8', filemode='w', level=logging.DEBUG)
     if len(sys.argv) == 3:
         logging.debug('Correct number of arguments supplied')
-        wlc_config_filename = home + '\\' + sys.argv[1]
-        project_filename = home + '\\' + sys.argv[2]
-        bssid_dict = exctract_bssid(wlc_config_filename)
+        wlc_config_filepath = home / sys.argv[1]
+        project_filepath = home / sys.argv[2]
+        bssid_dict = exctract_bssid(wlc_config_filepath)
         if len(bssid_dict) > 0:
-            add_ap_names(project_filename,bssid_dict)
+            add_ap_names(project_filepath,bssid_dict)
         else:
             print('No BSSID found in supplied WLC config file')
             logging.debug('No BSSID found in supplied WLC config file')
