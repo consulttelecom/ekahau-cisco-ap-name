@@ -4,7 +4,10 @@ There are two possible reasons:
 * Special feature for broadcasting AP names in 802.11 beacon frames should be enabled (Cisco Aironet IE)
 * Even when this feature is enabled, it broadcasts only 15 symbols. That is why AP that has the perfect self-describing name **"US-Alabama-Office-3-Floor-5-Room-335-right-corner-just-above-your-head"** will become featureless **"US-Alabama-Offi"**
 
-Luckily if you have Cisco WLAN equipment and can collect WLC config file, you can solve this problem with just a couple of commands.
+Luckily if you have Cisco WLAN equipment and can collect WLC config file, you can solve this problem with help of this tool.
+
+If you are not Python guru and prefer ready-to-use executables, please go to special repository:
+https://github.com/consulttelecom/ekahau-cisco-ap-gui
 
 
 ## AP name adder for Ekahau project files
